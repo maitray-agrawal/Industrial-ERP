@@ -86,11 +86,29 @@ export default function SearchEngine({ onStudentSelect, selectedStudent, refresh
             type="text"
             value={queryStr}
             onChange={(e) => setQueryStr(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                fetchStudents();
+              }
+            }}
             placeholder="Type T-1001, B-2026-A, Aarav Sharma..."
             className="w-full bg-transparent px-5 py-4 text-sm text-slate-200 placeholder-slate-500 outline-none"
           />
           
           <div className="flex items-center gap-2">
+            {queryStr && (
+              <button
+                onClick={() => {
+                  setQueryStr("");
+                  setStudents([]);
+                }}
+                className="p-1.5 text-slate-400 hover:text-rose-400 text-xs transition-all font-bold"
+                title="Clear search input"
+              >
+                ✕
+              </button>
+            )}
+
             {isLoading && (
               <span className="w-4 h-4 rounded-full border-2 border-brand-500 border-t-transparent animate-spin inline-block"></span>
             )}
@@ -109,6 +127,31 @@ export default function SearchEngine({ onStudentSelect, selectedStudent, refresh
             </button>
           </div>
         </div>
+
+        {/* QUICK-FILTER PILLS DISPLAY */}
+        {(qualification || trade) && (
+          <div className="flex flex-wrap gap-2 mt-3 text-[10px] items-center">
+            <span className="text-slate-500 font-bold uppercase tracking-wider">Active Filters:</span>
+            {qualification && (
+              <span className="bg-brand-500/15 text-brand-400 border border-brand-500/30 px-2.5 py-1 rounded-full flex items-center gap-1">
+                🎓 {qualification === "12th" ? "12th Grade" : "ITI Diploma"}
+                <button onClick={() => setQualification("")} className="hover:text-rose-400 ml-1 font-black">✕</button>
+              </span>
+            )}
+            {trade && (
+              <span className="bg-sky-500/15 text-sky-400 border border-sky-500/30 px-2.5 py-1 rounded-full flex items-center gap-1">
+                🔧 {trade}
+                <button onClick={() => setTrade("")} className="hover:text-rose-400 ml-1 font-black">✕</button>
+              </span>
+            )}
+            <button 
+              onClick={() => { setQualification(""); setTrade(""); }}
+              className="text-brand-400 hover:text-brand-300 font-bold underline ml-1"
+            >
+              Reset All
+            </button>
+          </div>
+        )}
 
         {/* ELEGANT DROPDOWN DRAWER FOR FILTER CHECKBOXES */}
         {isFilterOpen && (
@@ -205,8 +248,9 @@ export default function SearchEngine({ onStudentSelect, selectedStudent, refresh
         )}
 
         {queryStr.trim() && students.length === 0 && !isLoading && (
-          <div className="absolute left-0 right-0 z-50 mt-2 rounded-2xl border border-dark-border bg-dark-bg p-4 text-center text-xs text-slate-500 shadow-2xl">
-            No matching student records found.
+          <div className="absolute left-0 right-0 z-50 mt-2 rounded-2xl border border-rose-500/20 bg-dark-bg p-4 text-center text-xs text-slate-400 shadow-2xl space-y-1">
+            <p>⚠️ No student profiles matched your search terms.</p>
+            <p className="text-[10px] text-slate-500">Tip: Check the ticket format (e.g. <strong>T-1001</strong>) or search for single words like <strong>Aarav</strong> or batch prefix <strong>B-2026</strong>.</p>
           </div>
         )}
       </div>
